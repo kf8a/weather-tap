@@ -19,6 +19,10 @@ var timeTest = []struct {
 		in:  "2013-02-03T00:00:00+05:00",
 		out: [3]int{2013, 34, 2400},
 	},
+	{
+		in:  "2013-05-01T01:54:00+05:00",
+		out: [3]int{2013, 121, 154},
+	},
 }
 
 func TestCambpellTime(t *testing.T) {
