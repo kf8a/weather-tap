@@ -4,8 +4,8 @@ import (
 	/* "encoding/base64" */
 	"github.com/stretchr/testify/assert"
 	"log"
-	/* "net/http" */
-	/* "net/http/httptest" */
+	"net/http"
+	"net/http/httptest"
 	"testing"
 	"time"
 )
@@ -50,6 +50,10 @@ func TestCambpellTime(t *testing.T) {
 /* GET    /five_minute_observations(.:format) */
 /* GET    /five_minute_observations/:id(.:format) */
 
-/* func TestVariateRoute(t *testing.T) { */
-/* 	req, _ := http.NewRequest("GET", "/variates") */
-/* } */
+func TestVariateRoute(t *testing.T) {
+	r,_ := http.NewRequest("GET", "/variates/1", nil)
+	w := httptest.NewRecorder()
+
+	Router().ServeHTTP(w, r)
+	assert.Equal(t, w.Code, http.StatusOK)
+}
