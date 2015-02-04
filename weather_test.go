@@ -1,8 +1,11 @@
 package main
 
 import (
+	/* "encoding/base64" */
 	"github.com/stretchr/testify/assert"
 	"log"
+	/* "net/http" */
+	/* "net/http/httptest" */
 	"testing"
 	"time"
 )
@@ -35,3 +38,18 @@ func TestCambpellTime(t *testing.T) {
 		assert.Equal(t, test.out, actual)
 	}
 }
+
+/* GET    /tables(.:format) */
+/* GET    /tables/:id(.:format) */
+/* GET    /variates(.:format) */
+/* GET    /variates/:id(.:format) */
+/* GET    /day_observations(.:format) */
+/* GET    /day_observations/:id(.:format) */
+/* GET    /hour_observations(.:format) */
+/* GET    /hour_observations/:id(.:format) */
+/* GET    /five_minute_observations(.:format) */
+/* GET    /five_minute_observations/:id(.:format) */
+
+/* func TestVariateRoute(t *testing.T) { */
+/* 	req, _ := http.NewRequest("GET", "/variates") */
+/* } */
