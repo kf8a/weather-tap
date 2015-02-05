@@ -57,3 +57,11 @@ func TestVariateRoute(t *testing.T) {
 	Router().ServeHTTP(w, r)
 	assert.Equal(t, w.Code, http.StatusOK)
 }
+
+func TestTablesRoute(t *testing.T) {
+	r,_ := http.NewRequest("GET", "/tables/1", nil)
+	w := httptest.NewRecorder()
+
+	Router().ServeHTTP(w, r)
+	assert.Equal(t, w.Code, http.StatusOK)
+}
