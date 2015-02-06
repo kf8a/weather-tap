@@ -51,13 +51,13 @@ func TestCambpellTime(t *testing.T) {
 /* GET    /five_minute_observations(.:format) */
 /* GET    /five_minute_observations/:id(.:format) */
 
-func TestVariateRoute(t *testing.T) {
-	r,_ := http.NewRequest("GET", "/variates/1", nil)
-	w := httptest.NewRecorder()
-  var db *sqlx.DB
-	Router(db).ServeHTTP(w, r)
-	assert.Equal(t, w.Code, http.StatusOK)
-}
+/* func TestVariateRoute(t *testing.T) { */
+/* 	w := httptest.NewRecorder() */
+/*   db, _:= sqlx.Open("sqlite3", ":memory:") */
+/* 	r,_ := http.NewRequest("GET", "/variates/1", nil) */
+/* 	Router(db).ServeHTTP(w, r) */
+/* 	assert.Equal(t, w.Code, http.StatusOK) */
+/* } */
 
 func TestTablesRoute(t *testing.T) {
 	r,_ := http.NewRequest("GET", "/tables/1", nil)
