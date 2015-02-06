@@ -2,6 +2,7 @@ package main
 
 import (
 	/* "encoding/base64" */
+	"github.com/jmoiron/sqlx"
 	"github.com/stretchr/testify/assert"
 	"log"
 	"net/http"
@@ -53,8 +54,8 @@ func TestCambpellTime(t *testing.T) {
 func TestVariateRoute(t *testing.T) {
 	r,_ := http.NewRequest("GET", "/variates/1", nil)
 	w := httptest.NewRecorder()
-
-	Router().ServeHTTP(w, r)
+  var db *sqlx.DB
+	Router(db).ServeHTTP(w, r)
 	assert.Equal(t, w.Code, http.StatusOK)
 }
 
@@ -62,6 +63,7 @@ func TestTablesRoute(t *testing.T) {
 	r,_ := http.NewRequest("GET", "/tables/1", nil)
 	w := httptest.NewRecorder()
 
-	Router().ServeHTTP(w, r)
+  var db *sqlx.DB
+	Router(db).ServeHTTP(w, r)
 	assert.Equal(t, w.Code, http.StatusOK)
 }
