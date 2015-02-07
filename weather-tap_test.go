@@ -60,10 +60,10 @@ func TestCambpellTime(t *testing.T) {
 /* } */
 
 func TestTablesRoute(t *testing.T) {
-	r,_ := http.NewRequest("GET", "/tables/1", nil)
+	r, _ := http.NewRequest("GET", "/tables/1", nil)
 	w := httptest.NewRecorder()
 
-  var db *sqlx.DB
+	var db *sqlx.DB
 	Router(db).ServeHTTP(w, r)
 	assert.Equal(t, w.Code, http.StatusOK)
 }

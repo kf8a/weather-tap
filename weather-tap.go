@@ -5,9 +5,9 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/jmoiron/sqlx"
 	_ "github.com/lib/pq"
+	"log"
+	"os"
 	"time"
-  "os"
-  "log"
 )
 
 func CampbellTime(myTime time.Time) [3]int {
@@ -19,8 +19,8 @@ func CampbellTime(myTime time.Time) [3]int {
 }
 
 type User struct {
-  Name     string `json:"name"`
-  Password string `json:"password"`
+	Name     string `json:"name"`
+	Password string `json:"password"`
 }
 
 func checkErr(err error, msg string) {
@@ -38,39 +38,49 @@ func Hello(c *gin.Context) {
 }
 
 type Datum struct {
-  Time time.Time `json:"date"`
-  Value float64   `json:"value"`
-}
-
-func jsonify(data []Datum) string {
-	json_data, err := json.Marshal(data)
-	checkErr(err, "Failed to convert to Json")
-
-  return string(json_data)
+	Time  time.Time `json:"date"`
+	Value float64   `json:"value"`
 }
 
 func VariatesById(db *sqlx.DB, c *gin.Context) {
 	id := c.Params.ByName("id")
-  var query string
-  db.Exec("set search_path=weather")
-  db.Get(&query, "select query from weather.variates where id = $1", id)
-  var data = []Datum{}
-  db.Select(&data, query)
-  c.String(200, jsonify(data))
+	var query string
+	db.Exec("set search_path=weather")
+	db.Get(&query, "select query from weather.variates where id = $1", id)
+	var data = []Datum{}
+	db.Select(&data, query)
+	c.JSON(200, data)
+}
+
+func tablesById(db *sqlx.DB, c *gin.Context) {
+	id := c.Params.ByName("id")
+	var query string
+	db.Exec("set search_path=weather")
+	db.Get(&query, "select query from weather.tables where id = $1", id)
+  rows, _ := db.Queryx(query)
+  var results []interface{}
+  for rows.Next() {
+    cols, _ := rows.SliceScan()
+    results = append(results, cols)
+   }
+  rows.Close()
+	c.JSON(200, results)
 }
 
 func Router(db *sqlx.DB) *gin.Engine {
 	router := gin.Default()
 	router.GET("/tables", Index)
-	router.GET("/tables/:id", Hello)
+	router.GET("/tables/:id", func(c *gin.Context) {
+    tablesById(db, c)
+  })
 	router.GET("/variates", Index)
 	router.GET("/variates/:id", func(c *gin.Context) {
-    VariatesById(db, c)
-  })
+		VariatesById(db, c)
+	})
 	router.GET("/day_observations", Index)
 	router.GET("/day_observations/:id", func(c *gin.Context) {
-    VariatesById(db, c)
-  })
+		VariatesById(db, c)
+	})
 	router.GET("/hour_observations", Index)
 	router.GET("/hour_observations/:id", Hello)
 	router.GET("/five_minute_observations", Index)
@@ -83,17 +93,16 @@ func main() {
 	configFile, err := os.Open(".env")
 	checkErr(err, "can't read .env file")
 
-  u := User{}
-  jsonParser := json.NewDecoder(configFile)
-  if err = jsonParser.Decode(&u); err != nil {
-    checkErr(err, "parsing config file")
-  }
+	u := User{}
+	jsonParser := json.NewDecoder(configFile)
+	if err = jsonParser.Decode(&u); err != nil {
+		checkErr(err, "parsing config file")
+	}
 
-  connection := "user="+u.Name +" password=" + u.Password +" dbname=metadata host=granby.kbs.msu.edu"
-	db, err := sqlx.Open("postgres", connection )
+	connection := "user=" + u.Name + " password=" + u.Password + " dbname=metadata host=127.0.0.1 port=5430"
+	db, err := sqlx.Open("postgres", connection)
 	checkErr(err, "sql.Open failed")
 	defer db.Close()
-
 
 	Router(db).Run("127.0.0.1:9000")
 }
