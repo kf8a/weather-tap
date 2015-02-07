@@ -59,11 +59,11 @@ func TestCambpellTime(t *testing.T) {
 /* 	assert.Equal(t, w.Code, http.StatusOK) */
 /* } */
 
-func TestTablesRoute(t *testing.T) {
-	r, _ := http.NewRequest("GET", "/tables/1", nil)
-	w := httptest.NewRecorder()
+/* func TestTablesRoute(t *testing.T) { */
+/* 	r, _ := http.NewRequest("GET", "/tables/1", nil) */
+/* 	w := httptest.NewRecorder() */
 
-	var db *sqlx.DB
-	Router(db).ServeHTTP(w, r)
-	assert.Equal(t, w.Code, http.StatusOK)
-}
+/* 	var db *sqlx.DB */
+/* 	Router(db).ServeHTTP(w, r) */
+/* 	assert.Equal(t, w.Code, http.StatusOK) */
+/* } */
