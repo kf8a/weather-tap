@@ -2,11 +2,11 @@ package main
 
 import (
 	/* "encoding/base64" */
-	"github.com/jmoiron/sqlx"
+	/* "github.com/jmoiron/sqlx" */
 	"github.com/stretchr/testify/assert"
 	"log"
-	"net/http"
-	"net/http/httptest"
+	/* "net/http" */
+	/* "net/http/httptest" */
 	"testing"
 	"time"
 )
