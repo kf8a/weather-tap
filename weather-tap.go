@@ -52,27 +52,41 @@ func VariatesById(db *sqlx.DB, c *gin.Context) {
 	c.JSON(200, data)
 }
 
+type Table struct {
+	Id   int
+	Name string
+}
+
+func tables(db *sqlx.DB, c *gin.Context) {
+	db.Exec("set search_path=weather")
+	var tables []Table
+	db.Select(&tables, "select id, name from weather.tables")
+	c.JSON(200, tables)
+}
+
 func tablesById(db *sqlx.DB, c *gin.Context) {
 	id := c.Params.ByName("id")
 	var query string
 	db.Exec("set search_path=weather")
 	db.Get(&query, "select query from weather.tables where id = $1", id)
-  rows, _ := db.Queryx(query)
-  var results []interface{}
-  for rows.Next() {
-    cols, _ := rows.SliceScan()
-    results = append(results, cols)
-   }
-  rows.Close()
+	rows, _ := db.Queryx(query)
+	var results []interface{}
+	for rows.Next() {
+		cols, _ := rows.SliceScan()
+		results = append(results, cols)
+	}
+	rows.Close()
 	c.JSON(200, results)
 }
 
 func Router(db *sqlx.DB) *gin.Engine {
 	router := gin.Default()
-	router.GET("/tables", Index)
+	router.GET("/tables", func(c *gin.Context) {
+		tables(db, c)
+	})
 	router.GET("/tables/:id", func(c *gin.Context) {
-    tablesById(db, c)
-  })
+		tablesById(db, c)
+	})
 	router.GET("/variates", Index)
 	router.GET("/variates/:id", func(c *gin.Context) {
 		VariatesById(db, c)
