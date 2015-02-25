@@ -34,7 +34,7 @@ func Index(c *gin.Context) {
 }
 
 type Datum struct {
-	Time  time.Time `json:"date"`
+	Time  time.Time `json:"time"`
 	Value float64   `json:"value"`
 }
 
