@@ -87,6 +87,14 @@ func tablesById(db *sqlx.DB, c *gin.Context) {
 	c.JSON(200, results)
 }
 
+func day_observations(db *sqlx.DB, c *gin.Context) {
+}
+
+func hour_observations(db *sqlx.DB, c *gin.Context) {
+}
+
+func five_minute_observations(db *sqlx.DB, c *gin.Context) {
+}
 func Router(db *sqlx.DB) *gin.Engine {
 	router := gin.Default()
 	router.GET("/tables", func(c *gin.Context) {
@@ -101,13 +109,16 @@ func Router(db *sqlx.DB) *gin.Engine {
 	router.GET("/variates/:id", func(c *gin.Context) {
 		variatesById(db, c)
 	})
-	router.GET("/day_observations", Index)
 	router.GET("/day_observations/:id", func(c *gin.Context) {
-		variatesById(db, c)
+		day_observations(db, c)
 	})
-	router.GET("/hour_observations", Index)
+	router.GET("/hour_observations", func(c *gin.Context) {
+		hour_observations(db, c)
+	})
 	router.GET("/hour_observations/:id", Index)
-	router.GET("/five_minute_observations", Index)
+	router.GET("/five_minute_observations", func(c *gin.Context) {
+		five_minute_observations(db, c)
+	})
 	router.GET("/five_minute_observations/:id", Index)
 
 	return router
