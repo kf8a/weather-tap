@@ -2,12 +2,14 @@ package main
 
 import (
 	"database/sql"
+	"encoding/csv"
 	"encoding/json"
 	"github.com/gin-gonic/gin"
 	"github.com/jmoiron/sqlx"
 	_ "github.com/lib/pq"
 	"log"
 	"os"
+	"strconv"
 	"time"
 )
 
@@ -88,8 +90,7 @@ func tablesById(db *sqlx.DB, c *gin.Context) {
 	c.JSON(200, results)
 }
 
-type DayObservationDB struct {
-	Battery_voltage_min          sql.NullFloat64
+type DayObservation struct {
 	Year_rtm                     sql.NullInt64
 	Day_rtm                      sql.NullInt64
 	Hour_rtm                     sql.NullInt64
@@ -97,11 +98,12 @@ type DayObservationDB struct {
 	Air_temp_107_hour_max        sql.NullInt64
 	Air_temp_107_min             sql.NullFloat64
 	Air_temp_107_hour_min        sql.NullInt64
-	Rh_max                       sql.NullFloat64 // rh_max * 100  float
+	Rh_max                       sql.NullFloat64
 	Rh_hour_max                  sql.NullInt64
-	Rh_min                       sql.NullFloat64 //rh_min * 100 float
+	Rh_min                       sql.NullFloat64
 	Rh_hour_min                  sql.NullInt64
-	Sol_rad_max                  sql.NullFloat64 //sol_rad_max * (0.6977 * 60)
+	Solar_radiation              sql.NullFloat64
+	Sol_rad_max                  sql.NullFloat64
 	Sol_rad_hour_max             sql.NullInt64
 	Soil_temp_5_cm_max           sql.NullFloat64
 	Soil_temp_5_cm_hour_max      sql.NullInt64
@@ -122,9 +124,51 @@ type DayObservationDB struct {
 	Wind_speed_max               sql.NullFloat64
 	Wind_speed_hour_max          sql.NullInt64
 	Rain_mm                      sql.NullFloat64
+	Battery_voltage_min          sql.NullFloat64
 	Date                         time.Time
-	Solar_radiation              sql.NullFloat64
 	Precip                       sql.NullFloat64
+}
+
+func (d *DayObservation) toMawn() []string {
+	value := []string{
+		strconv.FormatInt(d.Year_rtm.Int64, 10),
+		strconv.FormatInt(d.Day_rtm.Int64, 10),
+		strconv.FormatInt(d.Hour_rtm.Int64, 10),
+		strconv.FormatFloat(d.Air_temp_107_max.Float64, 'f', 5, 64),
+		// Air_temp_107_hour_max        sql.NullInt64
+		// Air_temp_107_min             sql.NullFloat64
+		// Air_temp_107_hour_min        sql.NullInt64
+		// Rh_max                       sql.NullFloat64
+		// Rh_hour_max                  sql.NullInt64
+		// Rh_min                       sql.NullFloat64
+		// Rh_hour_min                  sql.NullInt64
+		// Solar_radiation              sql.NullFloat64
+		// Sol_rad_max                  sql.NullFloat64
+		// Sol_rad_hour_max             sql.NullInt64
+		// Soil_temp_5_cm_max           sql.NullFloat64
+		// Soil_temp_5_cm_hour_max      sql.NullInt64
+		// Soil_temp_5_cm_min           sql.NullFloat64
+		// Soil_temp_5_cm_hour_min      sql.NullInt64
+		// Soil_temp_10_cm_max          sql.NullFloat64
+		// Soil_temp_10_cm_hour_max     sql.NullInt64
+		// Soil_temp_10_cm_min          sql.NullFloat64
+		// Soil_temp_10_cm_hour_min     sql.NullInt64
+		// Soil_moisture_10_cm_max      sql.NullFloat64
+		// Soil_moisture_10_cm_hour_max sql.NullInt64
+		// Soil_moisture_10_cm_min      sql.NullFloat64
+		// Soil_moisture_10_cm_hour_min sql.NullInt64
+		// Soil_moisture_25_cm_max      sql.NullFloat64
+		// Soil_moisture_25_cm_hour_max sql.NullInt64
+		// Soil_moisture_25_cm_min      sql.NullFloat64
+		// Soil_moisture_25_cm_hour_min sql.NullInt64
+		// Wind_speed_max               sql.NullFloat64
+		// Wind_speed_hour_max          sql.NullInt64
+		// Rain_mm                      sql.NullFloat64
+		// Battery_voltage_min          sql.NullFloat64
+		// Date                         time.Time
+		// Precip                       sql.NullFloat64
+	}
+	return value
 }
 
 func day_observations(db *sqlx.DB, c *gin.Context) {
@@ -135,7 +179,7 @@ func day_observations(db *sqlx.DB, c *gin.Context) {
 	defer rows.Close()
 
 	for rows.Next() {
-		observation := DayObservationDB{}
+		observation := DayObservation{}
 		if err := rows.StructScan(&observation); err != nil {
 			log.Fatal(err)
 		}
@@ -143,8 +187,9 @@ func day_observations(db *sqlx.DB, c *gin.Context) {
 		observation.Sol_rad_max.Float64 = observation.Sol_rad_max.Float64 * (0.6977 * 60)
 		observation.Rh_max.Float64 = observation.Rh_max.Float64 * 100
 		observation.Rh_min.Float64 = observation.Rh_min.Float64 * 100
-		data, _ := json.Marshal(observation)
-		c.Writer.Write(data)
+		writer := csv.NewWriter(c.Writer)
+		writer.Write(observation.toMawn())
+		writer.Flush()
 
 	}
 	/* solar_radiation = nil */
