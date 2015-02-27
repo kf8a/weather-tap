@@ -2,6 +2,7 @@ package main
 
 import (
 	"database/sql"
+	"strconv"
 	"time"
 )
 
@@ -22,9 +23,9 @@ type FiveMinuteObservation struct {
 func (d *FiveMinuteObservation) toMawn() []string {
 	values := []string{
 		"5",
-		string(d.Year_rtm),
-		string(d.Day_rtm),
-		string(d.Hourminute_rtm),
+		strconv.Itoa(d.Year_rtm),
+		strconv.Itoa(d.Day_rtm),
+		strconv.Itoa(d.Hourminute_rtm),
 		floatToString(d.Rain_mm),
 		floatToString(d.Leaf_wetness_mv_avg),
 		"",

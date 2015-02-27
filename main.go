@@ -99,7 +99,7 @@ func intToString(value sql.NullInt64) string {
 }
 
 func day_observations(db *sqlx.DB, c *gin.Context) {
-	rows, err := db.Queryx("select * from weather.day_observations_cache")
+	rows, err := db.Queryx("select * from weather.day_observations_cache order by datetime desc")
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -132,7 +132,7 @@ func day_observations(db *sqlx.DB, c *gin.Context) {
 }
 
 func hour_observations(db *sqlx.DB, c *gin.Context) {
-	rows, err := db.Queryx("select Air_temp107_avg,Relative_humidity_avg,Solar_radiation_avg,Soil_temp_q_avg,Soil_moisture_5_cm,Soil_moisture_20_cm,Wind_direction_d1_wvt,Wind_speed_wvt,Rain_mm,Battery_voltage_min,Datetime from weather.lter_hour_d")
+	rows, err := db.Queryx("select Air_temp107_avg,Relative_humidity_avg,Solar_radiation_avg,Soil_temp_q_avg,Soil_moisture_5_cm,Soil_moisture_20_cm,Wind_direction_d1_wvt,Wind_speed_wvt,Rain_mm,Battery_voltage_min,Datetime from weather.lter_hour_d order by datetime desc limit $1", limit(c))
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -143,6 +143,7 @@ func hour_observations(db *sqlx.DB, c *gin.Context) {
 
 	obs := HourObservation{}
 	writer.Write(obs.mawnHeader())
+	writer.Write(obs.mawnUnit())
 	for rows.Next() {
 		if err := rows.StructScan(&obs); err != nil {
 			log.Fatal(err)
@@ -165,8 +166,23 @@ func hour_observations(db *sqlx.DB, c *gin.Context) {
 
 }
 
+func limit(c *gin.Context) int {
+	limit := 1500
+	query := c.Request.URL.Query()
+	if query["limit"] != nil {
+		value, err := strconv.Atoi(query["limit"][0])
+		if err != nil {
+			log.Fatal(err)
+		}
+		limit = value
+	}
+	return limit
+}
+
 func five_minute_observations(db *sqlx.DB, c *gin.Context) {
-	rows, err := db.Queryx("select * from weather.lter_five_minute_a")
+
+	rows, err := db.Queryx("select air_temp107_avg, relative_humidity_avg, leaf_wetness_mv_avg, solar_radiation_avg, wind_direction_d1_wvt, wind_speed_wvt, rain_mm, datetime from weather.lter_five_minute_a order by datetime desc limit $1", limit(c))
+
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -175,8 +191,9 @@ func five_minute_observations(db *sqlx.DB, c *gin.Context) {
 	i := 0
 	writer := csv.NewWriter(c.Writer)
 
-	obs := HourObservation{}
+	obs := FiveMinuteObservation{}
 	writer.Write(obs.mawnHeader())
+	writer.Write(obs.mawnUnit())
 	for rows.Next() {
 		if err := rows.StructScan(&obs); err != nil {
 			log.Fatal(err)
@@ -212,13 +229,13 @@ func Router(db *sqlx.DB) *gin.Engine {
 	router.GET("/variates/:id", func(c *gin.Context) {
 		variatesById(db, c)
 	})
-	router.GET("/day_observations", func(c *gin.Context) {
+	router.GET("/day_observations.mawn", func(c *gin.Context) {
 		day_observations(db, c)
 	})
-	router.GET("/hour_observations", func(c *gin.Context) {
+	router.GET("/hour_observations.mawn", func(c *gin.Context) {
 		hour_observations(db, c)
 	})
-	router.GET("/five_minute_observations", func(c *gin.Context) {
+	router.GET("/five_minute_observations.mawn", func(c *gin.Context) {
 		five_minute_observations(db, c)
 	})
 

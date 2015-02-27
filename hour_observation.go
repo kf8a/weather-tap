@@ -2,6 +2,7 @@ package main
 
 import (
 	"database/sql"
+	"strconv"
 	"time"
 )
 
@@ -25,9 +26,9 @@ type HourObservation struct {
 func (d *HourObservation) toMawn() []string {
 	values := []string{
 		"60",
-		string(d.Year_rtm),
-		string(d.Day_rtm),
-		string(d.Hourminute_rtm),
+		strconv.Itoa(d.Year_rtm),
+		strconv.Itoa(d.Day_rtm),
+		strconv.Itoa(d.Hourminute_rtm),
 		floatToString(d.Air_temp107_avg),
 		floatToString(d.Relative_humidity_avg),
 		floatToString(d.Solar_radiation_avg),
