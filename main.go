@@ -6,7 +6,6 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/jmoiron/sqlx"
 	_ "github.com/lib/pq"
-	"html/template"
 	"log"
 	"os"
 	"strconv"
@@ -65,6 +64,7 @@ func tables(db *sqlx.DB, c *gin.Context) {
 	db.Exec("set search_path=weather")
 	var tables []Table
 	db.Select(&tables, "select id, name from weather.tables")
+	obj := gin.H{"tables": tables}
 	c.HTML(200, "templates/tables.html", obj)
 }
 
