@@ -141,18 +141,19 @@ func hour_observations(db *sqlx.DB, c *gin.Context) {
 	i := 0
 	writer := csv.NewWriter(c.Writer)
 
-	observation := HourObservation{}
-	writer.Write(observation.mawnHeader())
+	obs := HourObservation{}
+	writer.Write(obs.mawnHeader())
 	for rows.Next() {
-		if err := rows.StructScan(&observation); err != nil {
+		if err := rows.StructScan(&obs); err != nil {
 			log.Fatal(err)
 		}
 
-		observation.Year_rtm, observation.Day_rtm, observation.Hourminute_rtm = CampbellTime(observation.Datetime.Local())
+		obs.Year_rtm, obs.Day_rtm, obs.Hourminute_rtm = CampbellTime(obs.Datetime.Local())
 
-		// relative_humidity_avg = relative_humidity_avg * 100 unless relative_humidity_avg.nil?
-		// solar_radiaiton_avg = solar_radiation_avg * 0.6977 * 3600 unless solar_radiation_avg.nil?
-		writer.Write(observation.toMawn())
+		obs.Relative_humidity_avg.Float64 = obs.Relative_humidity_avg.Float64 * 100
+		obs.Solar_radiation_avg.Float64 = obs.Solar_radiation_avg.Float64 * 0.6977 * 3600
+
+		writer.Write(obs.toMawn())
 
 		if i%500 == 0 {
 			writer.Flush()
