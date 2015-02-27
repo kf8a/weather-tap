@@ -2,6 +2,11 @@ package main
 
 import (
 	"database/sql"
+	"encoding/csv"
+	"github.com/gin-gonic/gin"
+	"github.com/jmoiron/sqlx"
+	_ "github.com/lib/pq"
+	"log"
 	"time"
 )
 
@@ -126,4 +131,37 @@ func (d *DayObservation) mawnHeader() []string {
 		"timestamp",
 	}
 	return value
+}
+
+func day_observations(db *sqlx.DB, c *gin.Context) {
+	rows, err := db.Queryx("select * from weather.day_observations_cache order by datetime desc")
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer rows.Close()
+
+	i := 0
+	writer := csv.NewWriter(c.Writer)
+
+	observation := DayObservation{}
+	writer.Write(observation.mawnHeader())
+	for rows.Next() {
+		if err := rows.StructScan(&observation); err != nil {
+			log.Fatal(err)
+		}
+
+		observation.Solar_radiation.Float64 = observation.Solar_radiation.Float64 * 86.4
+		observation.Sol_rad_max.Float64 = observation.Sol_rad_max.Float64 * (0.6977 * 60)
+		observation.Rh_max.Float64 = observation.Rh_max.Float64 * 100
+		observation.Rh_min.Float64 = observation.Rh_min.Float64 * 100
+
+		writer.Write(observation.toMawn())
+
+		if i%500 == 0 {
+			writer.Flush()
+		}
+		i = i + 1
+
+	}
+	writer.Flush()
 }

@@ -2,6 +2,11 @@ package main
 
 import (
 	"database/sql"
+	"encoding/csv"
+	"github.com/gin-gonic/gin"
+	"github.com/jmoiron/sqlx"
+	_ "github.com/lib/pq"
+	"log"
 	"strconv"
 	"time"
 )
@@ -94,4 +99,39 @@ func (d *HourObservation) mawnUnit() []string {
 		"V",
 	}
 	return values
+}
+
+func hour_observations(db *sqlx.DB, c *gin.Context) {
+	rows, err := db.Queryx("select Air_temp107_avg,Relative_humidity_avg,Solar_radiation_avg,Soil_temp_q_avg,Soil_moisture_5_cm,Soil_moisture_20_cm,Wind_direction_d1_wvt,Wind_speed_wvt,Rain_mm,Battery_voltage_min,Datetime from weather.lter_hour_d order by datetime desc limit $1", limit(c))
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer rows.Close()
+
+	i := 0
+	writer := csv.NewWriter(c.Writer)
+
+	obs := HourObservation{}
+	writer.Write(obs.mawnHeader())
+	writer.Write(obs.mawnUnit())
+	for rows.Next() {
+		if err := rows.StructScan(&obs); err != nil {
+			log.Fatal(err)
+		}
+
+		obs.Year_rtm, obs.Day_rtm, obs.Hourminute_rtm = CampbellTime(obs.Datetime.Local())
+
+		obs.Relative_humidity_avg.Float64 = obs.Relative_humidity_avg.Float64 * 100
+		obs.Solar_radiation_avg.Float64 = obs.Solar_radiation_avg.Float64 * 0.6977 * 3600
+
+		writer.Write(obs.toMawn())
+
+		if i%500 == 0 {
+			writer.Flush()
+		}
+		i = i + 1
+
+	}
+	writer.Flush()
+
 }
