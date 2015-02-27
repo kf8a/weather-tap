@@ -6,6 +6,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/jmoiron/sqlx"
 	_ "github.com/lib/pq"
+	"html/template"
 	"log"
 	"os"
 	"strconv"
@@ -64,7 +65,7 @@ func tables(db *sqlx.DB, c *gin.Context) {
 	db.Exec("set search_path=weather")
 	var tables []Table
 	db.Select(&tables, "select id, name from weather.tables")
-	c.JSON(200, tables)
+	c.HTML(200, "templates/tables.html", obj)
 }
 
 func variates(db *sqlx.DB, c *gin.Context) {
@@ -112,6 +113,8 @@ func limit(c *gin.Context) int {
 
 func Router(db *sqlx.DB) *gin.Engine {
 	router := gin.Default()
+	router.LoadHTMLGlob("templates/*.html")
+
 	router.GET("/tables", func(c *gin.Context) {
 		tables(db, c)
 	})
