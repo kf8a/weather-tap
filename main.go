@@ -171,6 +171,31 @@ func five_minute_observations(db *sqlx.DB, c *gin.Context) {
 		log.Fatal(err)
 	}
 	defer rows.Close()
+
+	i := 0
+	writer := csv.NewWriter(c.Writer)
+
+	obs := HourObservation{}
+	writer.Write(obs.mawnHeader())
+	for rows.Next() {
+		if err := rows.StructScan(&obs); err != nil {
+			log.Fatal(err)
+		}
+
+		obs.Year_rtm, obs.Day_rtm, obs.Hourminute_rtm = CampbellTime(obs.Datetime.Local())
+
+		obs.Relative_humidity_avg.Float64 = obs.Relative_humidity_avg.Float64 * 100
+
+		writer.Write(obs.toMawn())
+
+		if i%500 == 0 {
+			writer.Flush()
+		}
+		i = i + 1
+
+	}
+	writer.Flush()
+
 }
 
 func Router(db *sqlx.DB) *gin.Engine {

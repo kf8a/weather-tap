@@ -6,23 +6,20 @@ import (
 )
 
 type HourObservation struct {
-	Year_rtm                  int
-	Day_rtm                   int
-	Hourminute_rtm            int
-	Air_temp107_avg           sql.NullFloat64
-	Relative_humidity_avg     sql.NullFloat64
-	Solar_radiation_avg       sql.NullFloat64
-	Soil_temp_q_avg           sql.NullFloat64
-	Soil_moisture_5_cm        sql.NullFloat64
-	Soil_moisture_20_cm       sql.NullFloat64
-	Wind_direction_d1_wvt     sql.NullFloat64
-	Wind_speed_wvt            sql.NullFloat64
-	Rain_mm                   sql.NullFloat64
-	Battery_voltage_min       sql.NullFloat64
-	Radio_battery_voltage_min sql.NullFloat64
-	Par_avg                   sql.NullFloat64
-	Barometer_avg             sql.NullFloat64
-	Datetime                  time.Time
+	Year_rtm              int
+	Day_rtm               int
+	Hourminute_rtm        int
+	Air_temp107_avg       sql.NullFloat64
+	Relative_humidity_avg sql.NullFloat64
+	Solar_radiation_avg   sql.NullFloat64
+	Soil_temp_q_avg       sql.NullFloat64
+	Soil_moisture_5_cm    sql.NullFloat64
+	Soil_moisture_20_cm   sql.NullFloat64
+	Wind_direction_d1_wvt sql.NullFloat64
+	Wind_speed_wvt        sql.NullFloat64
+	Rain_mm               sql.NullFloat64
+	Battery_voltage_min   sql.NullFloat64
+	Datetime              time.Time
 }
 
 func (d *HourObservation) toMawn() []string {
