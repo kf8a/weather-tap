@@ -12,20 +12,28 @@ import (
 )
 
 var timeTest = []struct {
-	in  string
-	out [3]int
+	in         string
+	year_rtm   int
+	day_rtm    int
+	hourminute int
 }{
 	{
-		in:  "2014-01-30T10:30:06+05:00",
-		out: [3]int{2014, 30, 1030},
+		in:         "2014-01-30T10:30:06+05:00",
+		year_rtm:   2014,
+		day_rtm:    30,
+		hourminute: 1030,
 	},
 	{
-		in:  "2013-02-03T00:00:00+05:00",
-		out: [3]int{2013, 34, 2400},
+		in:         "2013-02-03T00:00:00+05:00",
+		year_rtm:   2013,
+		day_rtm:    34,
+		hourminute: 2400,
 	},
 	{
-		in:  "2013-05-01T01:54:00+05:00",
-		out: [3]int{2013, 121, 154},
+		in:         "2013-05-01T01:54:00+05:00",
+		year_rtm:   2013,
+		day_rtm:    121,
+		hourminute: 154,
 	},
 }
 
@@ -35,8 +43,10 @@ func TestCambpellTime(t *testing.T) {
 		if err != nil {
 			log.Fatal(err)
 		}
-		actual := CampbellTime(mytime)
-		assert.Equal(t, test.out, actual)
+		year_rtm, day_rtm, hourminute := CampbellTime(mytime)
+		assert.Equal(t, test.year_rtm, year_rtm)
+		assert.Equal(t, test.day_rtm, day_rtm)
+		assert.Equal(t, test.hourminute, hourminute)
 	}
 }
 

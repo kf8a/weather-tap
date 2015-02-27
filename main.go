@@ -13,12 +13,12 @@ import (
 	"time"
 )
 
-func CampbellTime(myTime time.Time) [3]int {
+func CampbellTime(myTime time.Time) (int, int, int) {
 	hourmin := myTime.Hour()*100 + myTime.Minute()
 	if hourmin == 0 {
 		hourmin = 2400
 	}
-	return [3]int{myTime.Year(), myTime.YearDay(), hourmin}
+	return myTime.Year(), myTime.YearDay(), hourmin
 }
 
 type User struct {
@@ -132,6 +132,35 @@ func day_observations(db *sqlx.DB, c *gin.Context) {
 }
 
 func hour_observations(db *sqlx.DB, c *gin.Context) {
+	rows, err := db.Queryx("select Air_temp107_avg,Relative_humidity_avg,Solar_radiation_avg,Soil_temp_q_avg,Soil_moisture_5_cm,Soil_moisture_20_cm,Wind_direction_d1_wvt,Wind_speed_wvt,Rain_mm,Battery_voltage_min,Datetime from weather.lter_hour_d")
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer rows.Close()
+
+	i := 0
+	writer := csv.NewWriter(c.Writer)
+
+	observation := HourObservation{}
+	writer.Write(observation.mawnHeader())
+	for rows.Next() {
+		if err := rows.StructScan(&observation); err != nil {
+			log.Fatal(err)
+		}
+
+		observation.Year_rtm, observation.Day_rtm, observation.Hourminute_rtm = CampbellTime(observation.Datetime.Local())
+
+		// relative_humidity_avg = relative_humidity_avg * 100 unless relative_humidity_avg.nil?
+		// solar_radiaiton_avg = solar_radiation_avg * 0.6977 * 3600 unless solar_radiation_avg.nil?
+		writer.Write(observation.toMawn())
+
+		if i%500 == 0 {
+			writer.Flush()
+		}
+		i = i + 1
+
+	}
+	writer.Flush()
 
 }
 
