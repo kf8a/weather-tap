@@ -6,8 +6,41 @@ import (
 )
 
 type HourObservation struct {
-	Year_rtm sql.NullInt64
-	Datetime time.Time
+	Year_rtm              sql.NullInt64
+	Day_rtm               sql.NullInt64
+	Hourminute_rtm        sql.NullInt64
+	Air_temp107_avg       sql.NullFloat64
+	Relative_humidity_avg sql.NullFloat64
+	Solar_radiation_avg   sql.NullFloat64
+	Soil_temp_q_avg       sql.NullFloat64
+	Soil_moisture_5_cm    sql.NullFloat64
+	Soil_moisture_20_cm   sql.NullFloat64
+	Wind_direction_d1_wvt sql.NullFloat64
+	Wind_speed_wvt        sql.NullFloat64
+	Rain_mm               sql.NullFloat64
+	Battery_voltage_min   sql.NullFloat64
+	Datetime              time.Time
+}
+
+func (d *HourObservation) toMawn() []string {
+	values := []string{
+		"60",
+		intToString(d.Year_rtm),
+		intToString(d.Day_rtm),
+		intToString(d.Hourminute_rtm),
+		floatToString(d.Air_temp107_avg),
+		floatToString(d.Relative_humidity_avg),
+		floatToString(d.Solar_radiation_avg),
+		floatToString(d.Soil_temp_q_avg),
+		floatToString(d.Soil_moisture_5_cm),
+		floatToString(d.Soil_moisture_20_cm),
+		floatToString(d.Wind_direction_d1_wvt),
+		floatToString(d.Wind_speed_wvt),
+		floatToString(d.Rain_mm),
+		floatToString(d.Battery_voltage_min),
+		d.Datetime,
+	}
+	return values
 }
 
 func (d *HourObservation) mawnHeader() []string {
