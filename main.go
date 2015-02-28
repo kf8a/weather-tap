@@ -6,6 +6,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/jmoiron/sqlx"
 	_ "github.com/lib/pq"
+	"html/template"
 	"log"
 	"os"
 	"strconv"
@@ -40,6 +41,18 @@ type Datum struct {
 	Value float64   `json:"value"`
 }
 
+type Variate struct {
+	Id    int
+	Title string
+}
+
+func variates(db *sqlx.DB, c *gin.Context) {
+	db.Exec("set search_path=weather")
+	var variates []Variate
+	db.Select(&variates, "select id, title from weather.variates")
+	c.JSON(200, variates)
+}
+
 func variatesById(db *sqlx.DB, c *gin.Context) {
 	id := c.Params.ByName("id")
 	var query string
@@ -55,24 +68,13 @@ type Table struct {
 	Name string
 }
 
-type Variate struct {
-	Id    int
-	Title string
-}
-
 func tables(db *sqlx.DB, c *gin.Context) {
 	db.Exec("set search_path=weather")
 	var tables []Table
 	db.Select(&tables, "select id, name from weather.tables")
-	obj := gin.H{"tables": tables}
-	c.HTML(200, "templates/tables.html", obj)
-}
 
-func variates(db *sqlx.DB, c *gin.Context) {
-	db.Exec("set search_path=weather")
-	var variates []Variate
-	db.Select(&variates, "select id, title from weather.variates")
-	c.JSON(200, variates)
+	obj := gin.H{"tables": tables}
+	c.HTML(200, "tables.html", obj)
 }
 
 func tablesById(db *sqlx.DB, c *gin.Context) {
@@ -81,12 +83,13 @@ func tablesById(db *sqlx.DB, c *gin.Context) {
 	db.Exec("set search_path=weather")
 	db.Get(&query, "select query from weather.tables where id = $1", id)
 	rows, _ := db.Queryx(query)
+	defer rows.Close()
+
 	var results []interface{}
 	for rows.Next() {
 		cols, _ := rows.SliceScan()
 		results = append(results, cols)
 	}
-	rows.Close()
 	c.JSON(200, results)
 }
 
@@ -113,7 +116,7 @@ func limit(c *gin.Context) int {
 
 func Router(db *sqlx.DB) *gin.Engine {
 	router := gin.Default()
-	router.LoadHTMLGlob("templates/*.html")
+	router.SetHTMLTemplate(template.Must(template.ParseFiles("templates/tables.html")))
 
 	router.GET("/tables", func(c *gin.Context) {
 		tables(db, c)

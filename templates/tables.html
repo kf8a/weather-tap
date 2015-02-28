@@ -1,6 +1,9 @@
 <h1>Tables</h1>
 <ul>
-  {{ range .tables }}
-  <li> {{ . }}</li>
+  {{ range $element := .tables }}
+  <li data-id={{$element.Id}}> 
+  <a href="/tables/{{$element.Id}}">
+    {{$element.Name}}</li>
+  </a>
   {{ end }}
 </ul>
