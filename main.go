@@ -65,8 +65,9 @@ func variatesById(db *sqlx.DB, c *gin.Context) {
 }
 
 type Table struct {
-	Id   int
-	Name string
+	Id    int
+	Name  string
+	Query string
 }
 
 func tables(db *sqlx.DB, c *gin.Context) {
@@ -80,14 +81,15 @@ func tables(db *sqlx.DB, c *gin.Context) {
 
 func tablesById(db *sqlx.DB, c *gin.Context) {
 	id := c.Params.ByName("id")
-	var query string
+	var query Table
 	db.Exec("set search_path=weather")
-	db.Get(&query, "select query from weather.tables where id = $1", id)
-	rows, _ := db.Query(query)
+	db.Get(&query, "select id, name, query from weather.tables where id = $1", id)
+	rows, _ := db.Query(query.Query)
 	defer rows.Close()
 
 	w := c.Writer
 	w.Header().Set("Content-type", "text/csv")
+	w.Header().Set("Content-Disposition", "attachment; filename=\""+query.Name+".csv\"")
 
 	sqltocsv.Write(w, rows)
 }
