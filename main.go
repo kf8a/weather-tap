@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"github.com/gin-gonic/gin"
 	"github.com/jmoiron/sqlx"
+	"github.com/joho/sqltocsv"
 	_ "github.com/lib/pq"
 	"html/template"
 	"log"
@@ -82,15 +83,13 @@ func tablesById(db *sqlx.DB, c *gin.Context) {
 	var query string
 	db.Exec("set search_path=weather")
 	db.Get(&query, "select query from weather.tables where id = $1", id)
-	rows, _ := db.Queryx(query)
+	rows, _ := db.Query(query)
 	defer rows.Close()
 
-	var results []interface{}
-	for rows.Next() {
-		cols, _ := rows.SliceScan()
-		results = append(results, cols)
-	}
-	c.JSON(200, results)
+	w := c.Writer
+	w.Header().Set("Content-type", "text/csv")
+
+	sqltocsv.Write(w, rows)
 }
 
 func floatToString(value sql.NullFloat64) string {
