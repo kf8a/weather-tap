@@ -1,5 +1,5 @@
 <ul>
-  {{ range $element := .variates}}
-  <li>{{ $element.Title}}</li>
+  {{ range $element := .variates }}
+  <li data-id="{{$element.Id}}">{{ $element.Title }}</li>
   {{ end }}
 </ul>
