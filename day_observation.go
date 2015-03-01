@@ -133,8 +133,25 @@ func (d *DayObservation) mawnHeader() []string {
 	return value
 }
 
+func (d *DayObservation) mawnUnit() []string {
+	value := []string{
+		"#",
+		"#",
+		"", "", "",
+		"C", "", "C", "",
+		"%", "", "%", "",
+		"KJ/m^2", "KJ/m^2/min",
+		"", "C", "", "C", "",
+		"C", "", "C", "",
+		"%", "", "%",
+		"", "%", "", "%", "",
+		"m/s", "", "mm", "V",
+	}
+	return value
+}
+
 func day_observations(db *sqlx.DB, c *gin.Context) {
-	rows, err := db.Queryx("select * from (select * from weather.day_observations_cache order by date limit $1) t1 order by date", limit(c))
+	rows, err := db.Queryx("select * from (select * from weather.day_observations_cache order by date desc limit $1) t1 order by date", limit(c))
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -145,6 +162,8 @@ func day_observations(db *sqlx.DB, c *gin.Context) {
 
 	observation := DayObservation{}
 	writer.Write(observation.mawnHeader())
+	writer.Write(observation.mawnUnit())
+
 	for rows.Next() {
 		if err := rows.StructScan(&observation); err != nil {
 			log.Fatal(err)

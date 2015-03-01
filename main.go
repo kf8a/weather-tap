@@ -113,7 +113,7 @@ func intToString(value sql.NullInt64) string {
 }
 
 func limit(c *gin.Context) int {
-	limit := 1000
+	limit := 1152
 	query := c.Request.URL.Query()
 	if query["limit"] != nil {
 		value, err := strconv.Atoi(query["limit"][0])
