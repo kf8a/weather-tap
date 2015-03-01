@@ -134,7 +134,7 @@ func (d *DayObservation) mawnHeader() []string {
 }
 
 func day_observations(db *sqlx.DB, c *gin.Context) {
-	rows, err := db.Queryx("select * from weather.day_observations_cache order by datetime desc")
+	rows, err := db.Queryx("select * from (select * from weather.day_observations_cache order by date limit $1) t1 order by date", limit(c))
 	if err != nil {
 		log.Fatal(err)
 	}

@@ -97,15 +97,23 @@ func tablesById(db *sqlx.DB, c *gin.Context) {
 }
 
 func floatToString(value sql.NullFloat64) string {
-	return strconv.FormatFloat(value.Float64, 'f', 5, 64)
+	result := "nil"
+	if value.Valid {
+		result = strconv.FormatFloat(value.Float64, 'f', 5, 64)
+	}
+	return result
 }
 
 func intToString(value sql.NullInt64) string {
-	return strconv.FormatInt(value.Int64, 10)
+	result := "nil"
+	if value.Valid {
+		result = strconv.FormatInt(value.Int64, 10)
+	}
+	return result
 }
 
 func limit(c *gin.Context) int {
-	limit := 1500
+	limit := 1000
 	query := c.Request.URL.Query()
 	if query["limit"] != nil {
 		value, err := strconv.Atoi(query["limit"][0])
