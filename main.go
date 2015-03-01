@@ -51,7 +51,9 @@ func variates(db *sqlx.DB, c *gin.Context) {
 	db.Exec("set search_path=weather")
 	var variates []Variate
 	db.Select(&variates, "select id, title from weather.variates")
-	c.JSON(200, variates)
+
+	obj := gin.H{"variates": variates}
+	c.HTML(200, "variates.html", obj)
 }
 
 func variatesById(db *sqlx.DB, c *gin.Context) {
@@ -117,7 +119,8 @@ func limit(c *gin.Context) int {
 
 func Router(db *sqlx.DB) *gin.Engine {
 	router := gin.Default()
-	router.SetHTMLTemplate(template.Must(template.ParseFiles("templates/tables.html")))
+	templates := template.Must(template.ParseFiles("templates/tables.html", "templates/variates.html"))
+	router.SetHTMLTemplate(templates)
 
 	router.GET("/tables", func(c *gin.Context) {
 		tables(db, c)
