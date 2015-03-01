@@ -35,14 +35,18 @@ func (d *HourObservation) toMawn() []string {
 		strconv.Itoa(d.Day_rtm),
 		strconv.Itoa(d.Hourminute_rtm),
 		floatToString(d.Air_temp107_avg),
+		"nil",
 		floatToString(d.Relative_humidity_avg),
-		floatToString(d.Solar_radiation_avg),
+		// floatToString(d.Solar_radiation_avg),
 		floatToString(d.Soil_temp_q_avg),
+		"nil",
 		floatToString(d.Soil_moisture_5_cm),
 		floatToString(d.Soil_moisture_20_cm),
 		floatToString(d.Wind_direction_d1_wvt),
 		floatToString(d.Wind_speed_wvt),
+		"nil", "nil",
 		floatToString(d.Rain_mm),
+		"nil", "nil",
 		floatToString(d.Battery_voltage_min),
 		d.Datetime.Format(time.RFC3339),
 	}
@@ -102,7 +106,7 @@ func (d *HourObservation) mawnUnit() []string {
 }
 
 func hour_observations(db *sqlx.DB, c *gin.Context) {
-	rows, err := db.Queryx("select Air_temp107_avg,Relative_humidity_avg,Solar_radiation_avg,Soil_temp_q_avg,Soil_moisture_5_cm,Soil_moisture_20_cm,Wind_direction_d1_wvt,Wind_speed_wvt,Rain_mm,Battery_voltage_min,Datetime from weather.lter_hour_d order by datetime desc limit $1", limit(c))
+	rows, err := db.Queryx("select * from (select Air_temp107_avg,Relative_humidity_avg,Solar_radiation_avg,Soil_temp_q_avg,Soil_moisture_5_cm,Soil_moisture_20_cm,Wind_direction_d1_wvt,Wind_speed_wvt,Rain_mm,Battery_voltage_min,Datetime from weather.lter_hour_d order by datetime desc limit $1) t1 order by datetime", limit(c))
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -121,7 +125,6 @@ func hour_observations(db *sqlx.DB, c *gin.Context) {
 
 		obs.Year_rtm, obs.Day_rtm, obs.Hourminute_rtm = CampbellTime(obs.Datetime.Local())
 
-		obs.Relative_humidity_avg.Float64 = obs.Relative_humidity_avg.Float64 * 100
 		obs.Solar_radiation_avg.Float64 = obs.Solar_radiation_avg.Float64 * 0.6977 * 3600
 
 		writer.Write(obs.toMawn())
