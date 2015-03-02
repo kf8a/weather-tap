@@ -53,13 +53,18 @@ func variates(db *sqlx.DB, c *gin.Context) {
 }
 
 func variatesById(db *sqlx.DB, c *gin.Context) {
-	id := c.Params.ByName("id")
+	idString := c.Params.ByName("id")
 	var query string
 	db.Exec("set search_path=weather")
-	db.Get(&query, "select query from weather.variates where id = $1", id)
-	var data = []Datum{}
-	db.Select(&data, query)
-	c.JSON(200, data)
+	id, err := strconv.Atoi(idString)
+	if err == nil {
+		var data = []Datum{}
+		err = db.Get(&query, "select query from weather.variates where id = $1", id)
+		if err == nil {
+			db.Select(&data, query)
+		}
+		c.JSON(200, data)
+	}
 }
 
 type Table struct {
@@ -81,15 +86,17 @@ func tablesById(db *sqlx.DB, c *gin.Context) {
 	id := c.Params.ByName("id")
 	var query Table
 	db.Exec("set search_path=weather")
-	db.Get(&query, "select id, name, query from weather.tables where id = $1", id)
-	rows, _ := db.Query(query.Query)
-	defer rows.Close()
+	err := db.Get(&query, "select id, name, query from weather.tables where id = $1", id)
+	if err == nil {
+		rows, _ := db.Query(query.Query)
+		defer rows.Close()
 
-	w := c.Writer
-	w.Header().Set("Content-type", "text/csv")
-	w.Header().Set("Content-Disposition", "attachment; filename=\""+query.Name+".csv\"")
+		w := c.Writer
+		w.Header().Set("Content-type", "text/csv")
+		w.Header().Set("Content-Disposition", "attachment; filename=\""+query.Name+".csv\"")
 
-	sqltocsv.Write(w, rows)
+		sqltocsv.Write(w, rows)
+	}
 }
 
 func floatToString(value sql.NullFloat64) string {

@@ -35,7 +35,7 @@ $(function() {
       .append("g")
       .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
-    d3.json("/variates/"+id, function(error, data) {
+    d3.json("/weather/variates/"+id, function(error, data) {
       data.forEach(function(d) {
         d.time = d.time.substring(0,19)
         d.time = parseTime(d.time);

@@ -2,7 +2,7 @@
 <ul>
   {{ range $element := .tables }}
   <li data-id={{$element.Id}}> 
-  <a href="/tables/{{$element.Id}}">
+  <a href="/weather/tables/{{$element.Id}}">
     {{$element.Name}}</li>
   </a>
   {{ end }}
