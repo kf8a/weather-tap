@@ -33,24 +33,20 @@ func checkErr(err error, msg string) {
 	}
 }
 
-func Index(c *gin.Context) {
-	c.String(200, "we are here")
-}
-
 type Datum struct {
 	Time  time.Time `json:"time"`
 	Value float64   `json:"value"`
 }
 
 type Variate struct {
-	Id    int
-	Title string
+	Id      int
+	Title   string
+	Y_label string
 }
 
 func variates(db *sqlx.DB, c *gin.Context) {
-	db.Exec("set search_path=weather")
 	var variates []Variate
-	db.Select(&variates, "select id, title from weather.variates")
+	db.Select(&variates, "select id, title, y_label from weather.variates where updated is true")
 
 	obj := gin.H{"variates": variates}
 	c.HTML(200, "variates.html", obj)
@@ -130,6 +126,9 @@ func Router(db *sqlx.DB) *gin.Engine {
 	templates := template.Must(template.ParseFiles("templates/tables.html", "templates/variates.html"))
 	router.SetHTMLTemplate(templates)
 
+	// router.Static("/assets", "/Users/bohms/code/go/src/weather-tap/assets")
+	router.Static("/assets", "./assets")
+
 	router.GET("/tables", func(c *gin.Context) {
 		tables(db, c)
 	})
@@ -165,10 +164,10 @@ func main() {
 		checkErr(err, "parsing config file")
 	}
 
-	connection := "user=" + u.Name + " password=" + u.Password + " dbname=metadata host=127.0.0.1 port=5430"
+	connection := "user=" + u.Name + " password=" + u.Password + " dbname=metadata host=granby.kbs.msu.edu port=5432"
 	db, err := sqlx.Open("postgres", connection)
 	checkErr(err, "sql.Open failed")
 	defer db.Close()
 
-	Router(db).Run("127.0.0.1:9000")
+	Router(db).Run(":9000")
 }
