@@ -1,5 +1,18 @@
-<ul>
-  {{ range $element := .variates }}
-  <li data-id="{{$element.Id}}">{{ $element.Title }}</li>
-  {{ end }}
-</ul>
+<html>
+  <head>
+    <link rel="stylesheet" href="assets/c3.css" type="text/css"/>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/css/bootstrap.min.css" type="text/css"/>
+    <script src="https://code.jquery.com/jquery-2.1.3.js" charset="utf-8"></script>
+    <script src="http://d3js.org/d3.v3.min.js" charset="utf-8"></script>
+    <script src="assets/c3.js" charsets="utf-8"></script>
+    <script src="assets/graph.js" charsets="utf-8"></script>
+  </head>
+  <body>
+    {{ range $element := .variates }}
+    <div class='well'>
+      <p> {{ $element.Title }} </p>
+      <div id="graph-{{$element.Id}}" class='graph' data-id="{{$element.Id}}"></div>
+    </div>
+    {{ end }}
+  </body>
+</html>
