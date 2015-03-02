@@ -7,7 +7,7 @@ $(function() {
     console.log(element)
     var margin = {top: 20, right: 20, bottom: 30, left: 50},
       width = 960 - margin.left - margin.right,
-      height = 500 - margin.top - margin.bottom;
+      height = 200 - margin.top - margin.bottom;
 
     var parseTime = d3.time.format("%Y-%m-%dT%H:%M:%S").parse;
 
