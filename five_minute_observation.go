@@ -110,7 +110,7 @@ func five_minute_observations(db *sqlx.DB, c *gin.Context) {
 	writer.Flush()
 }
 
-func five_minute_observations_json(db *sqlx.DB, c *gin.Context) {
+func five_minute_observations_js(db *sqlx.DB, c *gin.Context) {
 	data := []FiveMinuteObservation{}
 
 	db.Select(&data, "select rain_mm, datetime from weather.lter_five_minute_a order by datetime desc limit $1", limit(c))

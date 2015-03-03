@@ -158,7 +158,7 @@ func Router(db *sqlx.DB) *gin.Engine {
 		five_minute_observations(db, c)
 	})
 	router.GET("/five_minute_observations.js", func(c *gin.Context) {
-		five_minute_observations_json(db, c)
+		five_minute_observations_js(db, c)
 	})
 
 	return router
