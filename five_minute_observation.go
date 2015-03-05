@@ -77,7 +77,7 @@ func (d *FiveMinuteObservation) mawnUnit() []string {
 
 func five_minute_observations(db *sqlx.DB, c *gin.Context) {
 
-	rows, err := db.Queryx("select * from (select air_temp107_avg, relative_humidity_avg, leaf_wetness_mv_avg, solar_radiation_avg, wind_direction_d1_wvt, wind_speed_wvt, rain_mm, datetime from weather.lter_five_minute_a order by datetime desc limit $1) t1 order by datetime", limit(c))
+	rows, err := db.Queryx("select * from (select air_temp107_avg, relative_humidity_avg, leaf_wetness_mv_avg, solar_radiation_avg, wind_direction_d1_wvt, wind_speed_wvt, rain_mm, datetime from weather.lter_five_minute_a order by datetime desc limit $1) t1 order by datetime", limit(c, 1154))
 
 	if err != nil {
 		log.Fatal(err)
@@ -113,6 +113,6 @@ func five_minute_observations(db *sqlx.DB, c *gin.Context) {
 func five_minute_observations_js(db *sqlx.DB, c *gin.Context) {
 	data := []FiveMinuteObservation{}
 
-	db.Select(&data, "select rain_mm, datetime from weather.lter_five_minute_a order by datetime desc limit $1", limit(c))
+	db.Select(&data, "select rain_mm, datetime from weather.lter_five_minute_a order by datetime desc limit $1", limit(c, 3))
 	c.JSON(200, data)
 }
