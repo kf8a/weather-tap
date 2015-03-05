@@ -16,10 +16,12 @@ import (
 
 func CampbellTime(myTime time.Time) (int, int, int) {
 	hourmin := myTime.Hour()*100 + myTime.Minute()
+	doy := myTime.YearDay()
 	if hourmin == 0 {
 		hourmin = 2400
+		doy = doy - 1
 	}
-	return myTime.Year(), myTime.YearDay(), hourmin
+	return myTime.Year(), doy, hourmin
 }
 
 type User struct {

@@ -26,7 +26,7 @@ var timeTest = []struct {
 	{
 		in:         "2013-02-03T00:00:00+05:00",
 		year_rtm:   2013,
-		day_rtm:    34,
+		day_rtm:    33,
 		hourminute: 2400,
 	},
 	{
