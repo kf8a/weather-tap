@@ -106,7 +106,7 @@ func (d *HourObservation) mawnUnit() []string {
 }
 
 func hour_observations(db *sqlx.DB, c *gin.Context) {
-	rows, err := db.Queryx("select * from (select Air_temp107_avg,Relative_humidity_avg,Solar_radiation_avg,Soil_temp_q_avg,Soil_moisture_5_cm,Soil_moisture_20_cm,Wind_direction_d1_wvt,Wind_speed_wvt,Rain_mm,Battery_voltage_min,Datetime from weather.lter_hour_d order by datetime desc limit $1) t1 order by datetime", limit(c, 97))
+	rows, err := db.Queryx("select * from (select Air_temp107_avg,Relative_humidity_avg,Solar_radiation_avg,Soil_temp_q_avg,Soil_moisture_5_cm,Soil_moisture_20_cm,Wind_direction_d1_wvt,Wind_speed_wvt,Rain_mm,Battery_voltage_min,Datetime from weather.lter_hour_d where datetime < now() - interval '1 hour' order by datetime desc limit $1) t1 order by datetime", limit(c, 97))
 	if err != nil {
 		log.Fatal(err)
 	}
