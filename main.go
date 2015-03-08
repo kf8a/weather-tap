@@ -57,7 +57,6 @@ func variates(db *sqlx.DB, c *gin.Context) {
 func variatesById(db *sqlx.DB, c *gin.Context) {
 	idString := c.Params.ByName("id")
 	var query string
-	db.Exec("set search_path=weather")
 	id, err := strconv.Atoi(idString)
 	if err == nil {
 		var data = []Datum{}
@@ -76,7 +75,6 @@ type Table struct {
 }
 
 func tables(db *sqlx.DB, c *gin.Context) {
-	db.Exec("set search_path=weather")
 	var tables []Table
 	db.Select(&tables, "select id, name from weather.tables")
 
@@ -87,7 +85,6 @@ func tables(db *sqlx.DB, c *gin.Context) {
 func tablesById(db *sqlx.DB, c *gin.Context) {
 	id := c.Params.ByName("id")
 	var query Table
-	db.Exec("set search_path=weather")
 	err := db.Get(&query, "select id, name, query from weather.tables where id = $1", id)
 	if err == nil {
 		rows, _ := db.Query(query.Query)
