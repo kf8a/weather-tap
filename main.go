@@ -136,32 +136,60 @@ func Router(db *sqlx.DB) *gin.Engine {
 
 	// router.Static("/assets", "/Users/bohms/code/go/src/weather-tap/assets")
 	router.Static("/assets", "./assets")
+	router.Static("/weather/assets", "./assets")
 
 	router.GET("/tables", func(c *gin.Context) {
+		tables(db, c)
+	})
+	router.GET("/weather/tables", func(c *gin.Context) {
 		tables(db, c)
 	})
 	router.GET("/tables/:id", func(c *gin.Context) {
 		tablesById(db, c)
 	})
+	router.GET("/weather/tables/:id", func(c *gin.Context) {
+		tablesById(db, c)
+	})
 	router.GET("/variates", func(c *gin.Context) {
+		variates(db, c)
+	})
+	router.GET("/weather/variates", func(c *gin.Context) {
 		variates(db, c)
 	})
 	router.GET("/variates/:id", func(c *gin.Context) {
 		variatesById(db, c)
 	})
+	router.GET("/weather/variates/:id", func(c *gin.Context) {
+		variatesById(db, c)
+	})
 	router.GET("/day_observations.mawn", func(c *gin.Context) {
+		day_observations(db, c)
+	})
+	router.GET("/weather/day_observations.mawn", func(c *gin.Context) {
 		day_observations(db, c)
 	})
 	router.GET("/hour_observations.mawn", func(c *gin.Context) {
 		hour_observations(db, c)
 	})
+	router.GET("/weather/hour_observations.mawn", func(c *gin.Context) {
+		hour_observations(db, c)
+	})
 	router.GET("/five_minute_observations.mawn", func(c *gin.Context) {
+		five_minute_observations(db, c)
+	})
+	router.GET("/weather/five_minute_observations.mawn", func(c *gin.Context) {
 		five_minute_observations(db, c)
 	})
 	router.GET("/five_minute_observations.js", func(c *gin.Context) {
 		five_minute_observations_js(db, c)
 	})
+	router.GET("/weather/five_minute_observations.js", func(c *gin.Context) {
+		five_minute_observations_js(db, c)
+	})
 	router.GET("/five_minute_observations.xml", func(c *gin.Context) {
+		five_minute_observations_xml(db, c)
+	})
+	router.GET("/weather/five_minute_observations.xml", func(c *gin.Context) {
 		five_minute_observations_xml(db, c)
 	})
 
