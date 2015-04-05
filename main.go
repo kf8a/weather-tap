@@ -55,7 +55,7 @@ func variates(db *sqlx.DB, c *gin.Context) {
 	c.HTML(200, "variates.html", obj)
 }
 
-func replaceNaNsWithNil(data []Datum) []Datum {
+func removeNans(data []Datum) []Datum {
 	d := make([]Datum, 0)
 
 	for _, v := range data {
@@ -78,6 +78,7 @@ func variatesById(db *sqlx.DB, c *gin.Context) {
 			db.Select(&data, query)
 		}
 		// Loop over the data and replace NaN's with nil
+		data = removeNans(data)
 		c.JSON(200, data)
 	}
 }

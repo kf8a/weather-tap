@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"math"
 	"testing"
 	"time"
@@ -14,7 +13,7 @@ func TestNanRemoval(t *testing.T) {
 	data[1].Time = time.Now()
 	data[1].Value = 34
 
-	data = replaceNaNsWithNil(data)
+	data = removeNans(data)
 	if len(data) > 1 {
 		t.Error("Expected 1 row got ", len(data))
 	}
