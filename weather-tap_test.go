@@ -1,12 +1,12 @@
 package main
 
 import (
-	/* "encoding/base64" */
-	/* "github.com/jmoiron/sqlx" */
+	"github.com/jmoiron/sqlx"
+	_ "github.com/mattn/go-sqlite3"
 	"github.com/stretchr/testify/assert"
 	"log"
-	/* "net/http" */
-	/* "net/http/httptest" */
+	"net/http"
+	"net/http/httptest"
 	"testing"
 	"time"
 )
@@ -61,19 +61,22 @@ func TestCambpellTime(t *testing.T) {
 /* GET    /five_minute_observations(.:format) */
 /* GET    /five_minute_observations/:id(.:format) */
 
-/* func TestVariateRoute(t *testing.T) { */
-/* 	w := httptest.NewRecorder() */
-/*   db, _:= sqlx.Open("sqlite3", ":memory:") */
-/* 	r,_ := http.NewRequest("GET", "/variates/1", nil) */
-/* 	Router(db).ServeHTTP(w, r) */
-/* 	assert.Equal(t, w.Code, http.StatusOK) */
-/* } */
+func TestVariateRoute(t *testing.T) {
+	w := httptest.NewRecorder()
+	db, err := sqlx.Open("sqlite3", ":memory:")
+	if err != nil {
+		log.Fatal(err)
+	}
+	r, _ := http.NewRequest("GET", "/variates/1", nil)
+	Router(db).ServeHTTP(w, r)
+	assert.Equal(t, w.Code, http.StatusOK)
+}
 
-/* func TestTablesRoute(t *testing.T) { */
-/* 	r, _ := http.NewRequest("GET", "/tables/1", nil) */
-/* 	w := httptest.NewRecorder() */
+// func TestTablesRoute(t *testing.T) {
+// 	r, _ := http.NewRequest("GET", "/tables/1", nil)
+// 	w := httptest.NewRecorder()
 
-/* 	var db *sqlx.DB */
-/* 	Router(db).ServeHTTP(w, r) */
-/* 	assert.Equal(t, w.Code, http.StatusOK) */
-/* } */
+// 	var db *sqlx.DB
+// 	Router(db).ServeHTTP(w, r)
+// 	assert.Equal(t, w.Code, http.StatusOK)
+// }

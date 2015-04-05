@@ -9,6 +9,7 @@ import (
 	_ "github.com/lib/pq"
 	"html/template"
 	"log"
+	"math"
 	"os"
 	"strconv"
 	"time"
@@ -54,6 +55,17 @@ func variates(db *sqlx.DB, c *gin.Context) {
 	c.HTML(200, "variates.html", obj)
 }
 
+func replaceNaNsWithNil(data []Datum) []Datum {
+	d := make([]Datum, 0)
+
+	for _, v := range data {
+		if !math.IsNaN(v.Value) {
+			d = append(d, v)
+		}
+	}
+	return d
+}
+
 func variatesById(db *sqlx.DB, c *gin.Context) {
 	idString := c.Params.ByName("id")
 	var query string
@@ -65,6 +77,7 @@ func variatesById(db *sqlx.DB, c *gin.Context) {
 		if err == nil {
 			db.Select(&data, query)
 		}
+		// Loop over the data and replace NaN's with nil
 		c.JSON(200, data)
 	}
 }
