@@ -123,7 +123,7 @@ func five_minute_observations_js(db *sqlx.DB, c *gin.Context) {
 	log.Println(datetime)
 	data := []FiveMinuteObservation{}
 
-	db.Select(&data, "select rain_mm, air_temp107_avg, datetime from weather.lter_five_minute_a where datetime > ? order by datetime desc limit 1", datetime)
+	db.Select(&data, "select rain_mm, air_temp107_avg, datetime from weather.lter_five_minute_a where datetime > $1 order by datetime desc limit 1", datetime)
 	c.JSON(200, data)
 }
 
