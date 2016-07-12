@@ -127,6 +127,8 @@ func hour_observations(db *sqlx.DB, c *gin.Context) {
 
 		obs.Solar_radiation_avg.Float64 = obs.Solar_radiation_avg.Float64 * 0.6977 * 3600
 
+		obs.Relative_humidity_avg.Float64 = obs.Relative_humidity_avg.Float64 * 100
+
 		writer.Write(obs.toMawn())
 
 		if i%500 == 0 {
