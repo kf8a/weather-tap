@@ -12,20 +12,21 @@ import (
 )
 
 type HourObservation struct {
-	Year_rtm              int
-	Day_rtm               int
-	Hourminute_rtm        int
-	Air_temp107_avg       sql.NullFloat64
-	Relative_humidity_avg sql.NullFloat64
-	Solar_radiation_avg   sql.NullFloat64
-	Soil_temp_q_avg       sql.NullFloat64
-	Soil_moisture_5_cm    sql.NullFloat64
-	Soil_moisture_20_cm   sql.NullFloat64
-	Wind_direction_d1_wvt sql.NullFloat64
-	Wind_speed_wvt        sql.NullFloat64
-	Rain_mm               sql.NullFloat64
-	Battery_voltage_min   sql.NullFloat64
-	Datetime              time.Time
+	Year_rtm                    int
+	Day_rtm                     int
+	Hourminute_rtm              int
+	Air_temp107_avg             sql.NullFloat64
+	Relative_humidity_avg       sql.NullFloat64
+	Solar_radiation_avg         sql.NullFloat64
+	Soil_temperature_5_cm_bare  sql.NullFloat64
+	Soil_temperature_10_cm_bare sql.NullFloat64
+	Soil_moisture_5_cm          sql.NullFloat64
+	Soil_moisture_20_cm         sql.NullFloat64
+	Wind_direction_d1_wvt       sql.NullFloat64
+	Wind_speed_wvt              sql.NullFloat64
+	Rain_mm                     sql.NullFloat64
+	Battery_voltage_min         sql.NullFloat64
+	Datetime                    time.Time
 }
 
 func (d *HourObservation) toMawn() []string {
@@ -38,8 +39,8 @@ func (d *HourObservation) toMawn() []string {
 		floatToString(d.Relative_humidity_avg),
 		"nil",
 		// floatToString(d.Solar_radiation_avg),
-		floatToString(d.Soil_temp_q_avg),
-		"nil",
+		floatToString(d.Soil_temperature_5_cm_bare),
+		floatToString(d.Soil_temperature_10_cm_bare),
 		floatToString(d.Soil_moisture_5_cm),
 		floatToString(d.Soil_moisture_20_cm),
 		floatToString(d.Wind_direction_d1_wvt),
@@ -106,7 +107,7 @@ func (d *HourObservation) mawnUnit() []string {
 }
 
 func hour_observations(db *sqlx.DB, c *gin.Context) {
-	rows, err := db.Queryx("select * from ( select Air_temp107_avg,Relative_humidity_avg,Solar_radiation_avg, Soil_temp_q_avg,Soil_moisture_5_cm,Soil_moisture_20_cm,Wind_direction_d1_wvt, Wind_speed_wvt,raingauge_hourly.rain_mm,Battery_voltage_min,Datetime from weather.lter_hour_d join weather.raingauge_hourly on raingauge_hourly.hours = lter_hour_d.datetime where datetime < now() - interval '1 hour' order by datetime desc limit $1) t1 order by datetime", limit(c, 97))
+	rows, err := db.Queryx("select * from ( select Air_temp107_avg,Relative_humidity_avg,Solar_radiation_avg, Soil_temperature_5_cm_bare, Soil_temperature_10_cm_bare, Soil_moisture_5_cm,Soil_moisture_20_cm,Wind_direction_d1_wvt, Wind_speed_wvt,raingauge_hourly.rain_mm,Battery_voltage_min,Datetime from weather.lter_hour_d join weather.raingauge_hourly on raingauge_hourly.hours = lter_hour_d.datetime where datetime < now() - interval '1 hour' order by datetime desc limit $1) t1 order by datetime", limit(c, 97))
 	if err != nil {
 		log.Fatal(err)
 	}
