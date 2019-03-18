@@ -7,6 +7,7 @@ import (
 	"github.com/jmoiron/sqlx"
 	"github.com/joho/sqltocsv"
 	_ "github.com/lib/pq"
+	"github.com/prometheus/client_golang/prometheus"
 	"html/template"
 	"log"
 	"math"
@@ -150,6 +151,9 @@ func Router(db *sqlx.DB) *gin.Engine {
 
 	// router.Static("/assets", "/Users/bohms/code/go/src/weather-tap/assets")
 	router.Static("/assets", "./assets")
+	router.GET("/metrics", func(c *gin.Context) {
+		prometheus.Handler()
+	})
 	router.Static("/weather/assets", "./assets")
 
 	router.GET("/tables", func(c *gin.Context) {
@@ -224,6 +228,7 @@ func main() {
 	}
 
 	connection := "user=" + u.Name + " password=" + u.Password + " dbname=metadata host=granby.kbs.msu.edu port=5432"
+	// connection := "user=" + u.Name + " password=" + u.Password + " dbname=metadata host=localhost port=5430"
 	db, err := sqlx.Open("postgres", connection)
 	checkErr(err, "sql.Open failed")
 	defer db.Close()
