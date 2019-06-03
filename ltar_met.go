@@ -17,7 +17,7 @@ type LtarMetObservation struct {
 	RecordType            string
 	Air_temp107_avg       sql.NullFloat64
 	Wind_speed_wvt        sql.NullFloat64
-	Wind_direction        sql.NullFloat64
+	Wind_direction_d1_wvt        sql.NullFloat64
 	Relative_humidity_avg sql.NullFloat64
 	Rain_mm               sql.NullFloat64
 	AirPressure           sql.NullFloat64
@@ -36,14 +36,14 @@ func (d *LtarMetObservation) to_csv() []string {
 		"L",
 		floatToString(d.Air_temp107_avg),
 		floatToString(d.Wind_speed_wvt),
-		"",
+		floatToString(d.Wind_direction_d1_wvt),
 		floatToString(d.Relative_humidity_avg),
 		floatToString(d.Rain_mm),
 		"",
 		"",
 		"",
 		"",
-		"",
+		floatToString(d.BatteryVoltage),
 		"",
 	}
 	return values
@@ -78,7 +78,7 @@ func (d *LtarMetObservation) units() []string {
 		"",
 		"C",
 		"m/s",
-		"",
+		"degree",
 		"%",
 		"mm",
 		"kPa",
@@ -93,7 +93,7 @@ func (d *LtarMetObservation) units() []string {
 
 func ltar_met_observations(db *sqlx.DB, c *gin.Context) {
 
-	rows, err := db.Queryx(" select * from ( select Air_temp107_avg, Relative_humidity_avg ,Wind_speed_wvt, null as wind_direction, raingauge_hourly.rain_mm,Datetime from weather.lter_hour_d join weather.raingauge_hourly on raingauge_hourly.hours = lter_hour_d.datetime where datetime < now() - interval '1 hour' order by datetime desc limit $1) t1 order by datetime", limit(c, 1154))
+	rows, err := db.Queryx(" select * from ( select Air_temp107_avg, Relative_humidity_avg ,Wind_speed_wvt, Wind_direction_d1_wvt, raingauge_hourly.rain_mm,Datetime, Battery_voltage_min as BatteryVoltage from weather.lter_hour_d join weather.raingauge_hourly on raingauge_hourly.hours = lter_hour_d.datetime where datetime < now() - interval '1 hour' order by datetime desc limit $1) t1 order by datetime", limit(c, 1154))
 
 	if err != nil {
 		log.Print("error in query")
