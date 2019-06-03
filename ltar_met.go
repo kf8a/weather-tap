@@ -70,27 +70,6 @@ func (d *LtarMetObservation) header() []string {
 	return values
 }
 
-func (d *LtarMetObservation) units() []string {
-	values := []string{
-		"#",
-		"",
-		"",
-		"",
-		"C",
-		"m/s",
-		"degree",
-		"%",
-		"mm",
-		"kPa",
-		"",
-		"",
-		"",
-		"V",
-		"C",
-	}
-	return values
-}
-
 func ltar_met_observations(db *sqlx.DB, c *gin.Context) {
 
 	rows, err := db.Queryx(" select * from ( select Air_temp107_avg, Relative_humidity_avg ,Wind_speed_wvt, Wind_direction_d1_wvt, raingauge_hourly.rain_mm,Datetime, Battery_voltage_min as BatteryVoltage from weather.lter_hour_d join weather.raingauge_hourly on raingauge_hourly.hours = lter_hour_d.datetime where datetime < now() - interval '1 hour' order by datetime desc limit $1) t1 order by datetime", limit(c, 1154))
@@ -106,7 +85,6 @@ func ltar_met_observations(db *sqlx.DB, c *gin.Context) {
 
 	obs := LtarMetObservation{}
 	writer.Write(obs.header())
-	writer.Write(obs.units())
 	for rows.Next() {
 		if err := rows.StructScan(&obs); err != nil {
 			log.Fatal(err)
