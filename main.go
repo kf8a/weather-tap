@@ -210,12 +210,6 @@ func Router(db *sqlx.DB) *gin.Engine {
 	router.GET("/weather/five_minute_observations.xml", func(c *gin.Context) {
 		five_minute_observations_xml(db, c)
 	})
-	router.GET("/weather/ltar_met.csv", func(c *gin.Context) {
-		ltar_met_observations(db, c)
-	})
-	router.GET("/weather/ltar_met.md5", func(c *gin.Context) {
-		ltar_met_md5(db, c)
-	})
 
 	return router
 }
