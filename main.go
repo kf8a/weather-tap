@@ -3,11 +3,13 @@ package main
 import (
 	"database/sql"
 	"encoding/json"
+	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"github.com/jmoiron/sqlx"
 	"github.com/joho/sqltocsv"
 	_ "github.com/lib/pq"
-	"github.com/prometheus/client_golang/prometheus"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
+	// "github.com/prometheus/client_golang/prometheus"
 	"html/template"
 	"log"
 	"math"
@@ -88,6 +90,7 @@ type Table struct {
 	Id    int
 	Name  string
 	Query string
+  Download bool
 }
 
 func tables(db *sqlx.DB, c *gin.Context) {
@@ -103,14 +106,16 @@ func tablesById(db *sqlx.DB, c *gin.Context) {
 	id := c.Params.ByName("id")
 	var query Table
 	db.Exec("set search_path=weather")
-	err := db.Get(&query, "select id, name, query from weather.tables where id = $1", id)
+	err := db.Get(&query, "select id, name, query, download from weather.tables where id = $1", id)
 	if err == nil {
 		rows, _ := db.Query(query.Query)
 		defer rows.Close()
 
 		w := c.Writer
-		w.Header().Set("Content-type", "text/csv")
-		w.Header().Set("Content-Disposition", "attachment; filename=\""+query.Name+".csv\"")
+    if query.Download {
+      w.Header().Set("Content-type", "text/csv")
+      w.Header().Set("Content-Disposition", "attachment; filename=\""+query.Name+".csv\"")
+    }
 
 		sqltocsv.Write(w, rows)
 	}
@@ -146,13 +151,20 @@ func limit(c *gin.Context, limit int) int {
 
 func Router(db *sqlx.DB) *gin.Engine {
 	router := gin.Default()
+  config := cors.DefaultConfig()
+	config.AllowOrigins = []string{"http://oshtemo.kbs.msu.edu"}
+  config.AllowMethods = []string{"GET"}
+
+  router.Use(cors.New(config))
+
 	templates := template.Must(template.ParseFiles("templates/tables.html", "templates/variates.html"))
 	router.SetHTMLTemplate(templates)
 
 	// router.Static("/assets", "/Users/bohms/code/go/src/weather-tap/assets")
 	router.Static("/assets", "./assets")
 	router.GET("/metrics", func(c *gin.Context) {
-		prometheus.Handler()
+    promhttp.Handler()
+		// prometheus.Handler()
 	})
 	router.Static("/weather/assets", "./assets")
 
