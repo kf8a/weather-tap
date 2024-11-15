@@ -31,6 +31,9 @@ func CampbellTime(myTime time.Time) (int, int, int) {
 type User struct {
 	Name     string `json:"name"`
 	Password string `json:"password"`
+  Host     string `json:"host"`
+  Port     string `json:"port"`
+  Database string `json:"database"`
 }
 
 func checkErr(err error, msg string) {
@@ -156,11 +159,11 @@ func Router(db *sqlx.DB) *gin.Engine {
   config.AllowMethods = []string{"GET"}
 
   router.Use(cors.New(config))
+  router.SetTrustedProxies([]string{"127.0.0.1","oshtemo.kbs.msu.edu"})
 
 	templates := template.Must(template.ParseFiles("templates/tables.html", "templates/variates.html"))
 	router.SetHTMLTemplate(templates)
 
-	// router.Static("/assets", "/Users/bohms/code/go/src/weather-tap/assets")
 	router.Static("/assets", "./assets")
 	router.GET("/metrics", func(c *gin.Context) {
     promhttp.Handler()
@@ -232,12 +235,12 @@ func main() {
 
 	u := User{}
 	jsonParser := json.NewDecoder(configFile)
+  println(jsonParser)
 	if err = jsonParser.Decode(&u); err != nil {
 		checkErr(err, "parsing config file")
 	}
 
-	connection := "user=" + u.Name + " password=" + u.Password + " dbname=u.Database host=u.Host port=u.Port"
-	// connection := "user=" + u.Name + " password=" + u.Password + " dbname=metadata host=localhost port=5430"
+  connection := "user=" + u.Name + " password=" + u.Password + " dbname=" + u.Database +  " host=" + u.Host + " port=" + u.Port
 	db, err := sqlx.Open("postgres", connection)
 	checkErr(err, "sql.Open failed")
 	defer db.Close()
