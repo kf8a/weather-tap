@@ -1,3 +1,7 @@
 # weather-tap
 
-[![Build Status](https://travis-ci.org/kf8a/weather-tap.svg)](https://travis-ci.org/kf8a/weather-tap)
+This depends on the weather view at the LTER KBS so it is proably not useful to anyone else.
+
+To setup customize `env_demo` and save as `.env`
+
+To build `bash compile.sh` and the result is in the `bin/` directory

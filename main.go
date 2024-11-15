@@ -236,7 +236,7 @@ func main() {
 		checkErr(err, "parsing config file")
 	}
 
-	connection := "user=" + u.Name + " password=" + u.Password + " dbname=metadata host=granby.kbs.msu.edu port=5432"
+	connection := "user=" + u.Name + " password=" + u.Password + " dbname=u.Database host=u.Host port=u.Port"
 	// connection := "user=" + u.Name + " password=" + u.Password + " dbname=metadata host=localhost port=5430"
 	db, err := sqlx.Open("postgres", connection)
 	checkErr(err, "sql.Open failed")
