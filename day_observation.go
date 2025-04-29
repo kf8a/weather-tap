@@ -86,14 +86,14 @@ func (d *DayObservation) toMawn() []string {
 		intToString(d.Wind_speed_hour_max),
 		floatToString(d.Rain_mm),
 		floatToString(d.Battery_voltage_min),
-		d.Date.String(),
+		d.Date.Format("2006-01-02"),
 	}
 	return value
 }
 
 func (d *DayObservation) mawnHeader() []string {
 	value := []string{
-		"#code",
+		"code",
 		"year",
 		"day",
 		"report time",
@@ -107,9 +107,9 @@ func (d *DayObservation) mawnHeader() []string {
 		"time of relative humidity minimum",
 		"solar radiation",
 		"solar radiation density maximum",
-		"time  of solar radiation desnsity",
+		"time of solar radiation desnsity",
 		"soil temperature maximum at 5 cm under bare soil",
-		"time  of soil temperature maximum at 5 cm under bare soil",
+		"time of soil temperature maximum at 5 cm under bare soil",
 		"soil temperature minimum at 5 cm under bare soil",
 		"time of soil temperature minimum at 5 cm under bare soil",
 		"soil temperature maximum at 10 cm under bare soil",
@@ -136,7 +136,6 @@ func (d *DayObservation) mawnHeader() []string {
 func (d *DayObservation) mawnUnit() []string {
 	value := []string{
 		"#",
-		"#",
 		"", "", "",
 		"C", "", "C", "",
 		"%", "", "%", "",
@@ -151,7 +150,10 @@ func (d *DayObservation) mawnUnit() []string {
 }
 
 func day_observations(db *sqlx.DB, c *gin.Context) {
-	rows, err := db.Queryx("select * from (select * from weather.day_observations order by date desc limit $1) t1 order by date", limit(c, 16))
+	// rows, err := db.Queryx("select * from (select * from weather.day_observations order by date desc limit $1) t1 order by date", limit(c, 16))
+  // rows, err := db.Queryx("select * from (select * from weather.day_observations where date > '2007-12-1T00:00:00' order by date) t1 order by date")
+  // rows, err := db.Queryx("select * from (select * from weather.day_observations where date > '2022-08-31' order by date) t1 order by date limit 10")
+  rows, err := db.Queryx("select * from (select * from enviro_weather.day_observations where date > '2007-12-01' order by date desc limit $1) t1 order by date", limit(c, 16))
 	if err != nil {
 		log.Fatal(err)
 	}

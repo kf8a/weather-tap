@@ -27,6 +27,7 @@ type HourObservation struct {
 	Rain_mm                     sql.NullFloat64
 	Battery_voltage_min         sql.NullFloat64
 	Datetime                    time.Time
+  Campbell_time               time.Time
 }
 
 func (d *HourObservation) toMawn() []string {
@@ -50,6 +51,7 @@ func (d *HourObservation) toMawn() []string {
 		"nil", "nil",
 		floatToString(d.Battery_voltage_min),
 		d.Datetime.Format(time.RFC3339),
+		d.Campbell_time.Format(time.RFC3339),
 	}
 	return values
 }
@@ -65,7 +67,7 @@ func (d *HourObservation) mawnHeader() []string {
 		"solar radiation",
 		"soil temperature at 5 cm",
 		"soil temperature at 10 cm",
-		"soil  moisture at 5 cm",
+		"soil moisture at 5 cm",
 		"soil moisture at 20 cm",
 		"wind direction",
 		"wind speed",
@@ -76,6 +78,7 @@ func (d *HourObservation) mawnHeader() []string {
 		"leaf1",
 		"battery voltage minimum",
 		"timestamp",
+    "campbell_time",
 	}
 	return values
 }
@@ -102,12 +105,31 @@ func (d *HourObservation) mawnUnit() []string {
 		"",
 		"",
 		"V",
+    "",
+    "",
 	}
 	return values
 }
 
 func hour_observations(db *sqlx.DB, c *gin.Context) {
-	rows, err := db.Queryx("select * from ( select Air_temp107_avg,Relative_humidity_avg,Solar_radiation_avg, Soil_temperature_5_cm_bare, Soil_temperature_10_cm_bare, Soil_moisture_5_cm,Soil_moisture_20_cm,Wind_direction_d1_wvt, Wind_speed_wvt,coalesce(raingauge_hourly.rain_mm, 0) as rain_mm,Battery_voltage_min,Datetime from weather.lter_hour_d left outer join weather.raingauge_hourly on raingauge_hourly.hours = lter_hour_d.datetime where datetime < now() - interval '1 hour' order by datetime desc limit $1) t1 order by datetime", limit(c, 97))
+	// rows, err := db.Queryx("select * from ( select Air_temp107_avg,Relative_humidity_avg,Solar_radiation_avg, Soil_temperature_5_cm_bare, Soil_temperature_10_cm_bare, Soil_moisture_5_cm,Soil_moisture_20_cm,Wind_direction_d1_wvt, Wind_speed_wvt,coalesce(raingauge_hourly.rain_mm, 0) as rain_mm,Battery_voltage_min,Datetime from weather.lter_hour_d left outer join weather.raingauge_hourly on raingauge_hourly.hours = lter_hour_d.datetime where datetime < now() - interval '1 hour' order by datetime desc limit $1) t1 order by datetime", limit(c, 97))
+
+  query := `select * from (SELECT air_temp107_avg, relative_humidity_avg * 100::double precision AS relative_humidity_avg,
+  solar_radiation_avg * 0.6977::double precision * 3600::double precision AS solar_radiation_avg,
+  soil_temperature_5_cm_bare, soil_temperature_10_cm_bare,
+  soil_moisture_5_cm, soil_moisture_20_cm, wind_direction_d1_wvt, wind_speed_wvt,
+  rain_tipping_mm as rain_mm, battery_voltage_min,
+  datetime ,
+  datetime + '1 hour' as campbell_time
+  FROM
+  weather.lter_hour_d_delete
+  WHERE
+  datetime < (now() - interval '1 hour')
+  and datetime > '2007-12-01'
+  order by datetime desc limit $1) t1 order by datetime`
+
+  rows, err := db.Queryx(query, limit(c, 97))
+
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -124,7 +146,7 @@ func hour_observations(db *sqlx.DB, c *gin.Context) {
 			log.Fatal(err)
 		}
 
-		obs.Year_rtm, obs.Day_rtm, obs.Hourminute_rtm = CampbellTime(obs.Datetime.Local())
+		obs.Year_rtm, obs.Day_rtm, obs.Hourminute_rtm = CampbellTime(obs.Campbell_time.Local())
 
 		obs.Solar_radiation_avg.Float64 = obs.Solar_radiation_avg.Float64 * 0.6977 * 3600
 

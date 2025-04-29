@@ -24,6 +24,8 @@ type FiveMinuteObservation struct {
 	Wind_speed_wvt        sql.NullFloat64
 	Rain_mm               sql.NullFloat64
 	Datetime              time.Time
+  Wind_speed_3m_sonic   sql.NullFloat64
+  Wind_dir_3m_sonic     sql.NullFloat64
 }
 
 type Rain struct {
@@ -44,6 +46,8 @@ func (d *FiveMinuteObservation) toMawn() []string {
 		floatToString(d.Air_temp107_avg),
 		floatToString(d.Relative_humidity_avg),
 		d.Datetime.Format(time.RFC3339),
+    floatToString(d.Wind_speed_3m_sonic),
+    floatToString(d.Wind_dir_3m_sonic),
 	}
 	return values
 }
@@ -61,6 +65,8 @@ func (d *FiveMinuteObservation) mawnHeader() []string {
 		"air temperature",
 		"relative humidity",
 		"timestamp",
+    "wind speed 3m",
+    "wind direction 3m",
 	}
 	return values
 }
@@ -77,13 +83,16 @@ func (d *FiveMinuteObservation) mawnUnit() []string {
 		"m/s",
 		"C",
 		"%",
+    "m/s",
+    "degrees",
 	}
 	return values
 }
 
 func five_minute_observations(db *sqlx.DB, c *gin.Context) {
 
-	rows, err := db.Queryx("select * from (select air_temp107_avg, relative_humidity_avg, leaf_wetness_mv_avg, solar_radiation_avg, wind_direction_d1_wvt, wind_speed_wvt, rain_tipping_mm as rain_mm, lter_five_minute_a.datetime from weather.lter_five_minute_a order by datetime desc limit $1 ) t1 order by datetime", limit(c, 1154))
+	rows, err := db.Queryx("select * from (select air_temp107_avg, relative_humidity_avg, leaf_wetness_mv_avg, solar_radiation_avg, wind_direction_d1_wvt, wind_speed_wvt, rain_tipping_mm as rain_mm, lter_five_minute_a.datetime, lter_five_minute_a.wind_speed_3m_sonic, wind_dir_3m_sonic from weather.lter_five_minute_a order by datetime desc limit $1 ) t1 order by datetime", limit(c, 1154))
+  // rows, err := db.Queryx("select * from (select air_temp107_avg, relative_humidity_avg, leaf_wetness_mv_avg, solar_radiation_avg, wind_direction_d1_wvt, wind_speed_wvt, rain_tipping_mm as rain_mm, lter_five_minute_a.datetime, lter_five_minute_a.wind_speed_3m_sonic, wind_dir_3m_sonic from weather.lter_five_minute_a where datetime >= '2007-12-01T00:00:00' order by datetime desc ) t1 order by datetime" )
 
 	if err != nil {
 		log.Print("error in query")
