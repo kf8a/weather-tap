@@ -114,7 +114,7 @@ func (d *HourObservation) mawnUnit() []string {
 func hour_observations(db *sqlx.DB, c *gin.Context) {
 	// rows, err := db.Queryx("select * from ( select Air_temp107_avg,Relative_humidity_avg,Solar_radiation_avg, Soil_temperature_5_cm_bare, Soil_temperature_10_cm_bare, Soil_moisture_5_cm,Soil_moisture_20_cm,Wind_direction_d1_wvt, Wind_speed_wvt,coalesce(raingauge_hourly.rain_mm, 0) as rain_mm,Battery_voltage_min,Datetime from weather.lter_hour_d left outer join weather.raingauge_hourly on raingauge_hourly.hours = lter_hour_d.datetime where datetime < now() - interval '1 hour' order by datetime desc limit $1) t1 order by datetime", limit(c, 97))
 
-  query := `select * from (SELECT air_temp107_avg, relative_humidity_avg * 100::double precision AS relative_humidity_avg,
+  query := `select * from (SELECT air_temp107_avg, relative_humidity_avg AS relative_humidity_avg,
   solar_radiation_avg * 0.6977::double precision * 3600::double precision AS solar_radiation_avg,
   soil_temperature_5_cm_bare, soil_temperature_10_cm_bare,
   soil_moisture_5_cm, soil_moisture_20_cm, wind_direction_d1_wvt, wind_speed_wvt,
